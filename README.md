@@ -1,8 +1,17 @@
 
 # WARNING!
-This fork was made in order to migrate the library to AndroidX. Add-ons and updates probably will not appear.
 
-[![Release](https://jitpack.io/v/TalbotGooday/AndroidPdfViewer.svg)](https://jitpack.io/#TalbotGooday/AndroidPdfViewer)
+The purpose of this fork is to make this library compatible for [16 KB page size support](https://developer.android.com/guide/practices/page-sizes).
+
+The main change was to migrate to a newer [Pdfium wrapper](https://github.com/johngray1965/PdfiumAndroidKt). The changes are kept minimal. Sample app isn't tested and not updated so it may not work.
+
+Unfortunately switching from the original library won't be transparent for Pdfium related code. You'll need to migrate from package `com.shockwave.pdfium` to `io.legere.pdfiumandroid`. Some classes and methods may have a slightly different names or parameters, but overall logic and implementation should be the same.
+
+There is no guarantee that I'll keep maintaining this repo.
+
+---
+
+This fork was made in order to migrate the library to AndroidX. Add-ons and updates probably will not appear.
 
 Add to _build.gradle_:
 ```groovy
@@ -15,7 +24,7 @@ allprojects {
 ```
 Add the dependency
 ```groovy
-implementation 'com.github.TalbotGooday:AndroidPdfViewer:Tag'
+implementation 'com.github.yusifmammadov:AndroidPdfViewer:Tag'
 ```
 
 ---
