@@ -16,6 +16,7 @@
 package com.github.barteksc.pdfviewer;
 
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -25,11 +26,12 @@ import android.view.View;
 import com.github.barteksc.pdfviewer.model.LinkTapEvent;
 import com.github.barteksc.pdfviewer.scroll.ScrollHandle;
 import com.github.barteksc.pdfviewer.util.SnapEdge;
-import com.shockwave.pdfium.PdfDocument;
-import com.shockwave.pdfium.util.SizeF;
 
 import static com.github.barteksc.pdfviewer.util.Constants.Pinch.MAXIMUM_ZOOM;
 import static com.github.barteksc.pdfviewer.util.Constants.Pinch.MINIMUM_ZOOM;
+
+import io.legere.pdfiumandroid.PdfDocument;
+import io.legere.pdfiumandroid.util.Size;
 
 /**
  * This Manager takes care of moving the PDFView,
@@ -93,7 +95,7 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         float mappedX = -pdfView.getCurrentXOffset() + x;
         float mappedY = -pdfView.getCurrentYOffset() + y;
         int page = pdfFile.getPageAtOffset(pdfView.isSwipeVertical() ? mappedY : mappedX, pdfView.getZoom());
-        SizeF pageSize = pdfFile.getScaledPageSize(page, pdfView.getZoom());
+        Size pageSize = pdfFile.getScaledPageSize(page, pdfView.getZoom());
         int pageX, pageY;
         if (pdfView.isSwipeVertical()) {
             pageX = (int) pdfFile.getSecondaryPageOffset(page, pdfView.getZoom());
@@ -103,10 +105,10 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
             pageX = (int) pdfFile.getPageOffset(page, pdfView.getZoom());
         }
         for (PdfDocument.Link link : pdfFile.getPageLinks(page)) {
-            RectF mapped = pdfFile.mapRectToDevice(page, pageX, pageY, (int) pageSize.getWidth(),
-                    (int) pageSize.getHeight(), link.getBounds());
+            Rect mapped = pdfFile.mapRectToDevice(page, pageX, pageY, pageSize.getWidth(),
+                    pageSize.getHeight(), link.getBounds());
             mapped.sort();
-            if (mapped.contains(mappedX, mappedY)) {
+            if (mapped.contains((int) mappedX, (int) mappedY)) {
                 pdfView.callbacks.callLinkHandler(new LinkTapEvent(x, y, mappedX, mappedY, mapped, link));
                 return true;
             }

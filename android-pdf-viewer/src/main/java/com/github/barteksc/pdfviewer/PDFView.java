@@ -62,16 +62,15 @@ import com.github.barteksc.pdfviewer.util.FitPolicy;
 import com.github.barteksc.pdfviewer.util.MathUtils;
 import com.github.barteksc.pdfviewer.util.SnapEdge;
 import com.github.barteksc.pdfviewer.util.Util;
-import com.shockwave.pdfium.PdfDocument;
-import com.shockwave.pdfium.PdfiumCore;
-import com.shockwave.pdfium.util.Size;
-import com.shockwave.pdfium.util.SizeF;
-
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import io.legere.pdfiumandroid.PdfDocument;
+import io.legere.pdfiumandroid.PdfiumCore;
+import io.legere.pdfiumandroid.util.Size;
 
 /**
  * It supports animations, zoom, cache, and swipe.
@@ -310,7 +309,7 @@ public class PDFView extends RelativeLayout {
         debugPaint = new Paint();
         debugPaint.setStyle(Style.STROKE);
 
-        pdfiumCore = new PdfiumCore(context);
+        pdfiumCore = new PdfiumCore();
         setWillNotDraw(false);
     }
 
@@ -709,7 +708,7 @@ public class PDFView extends RelativeLayout {
             }
 
             canvas.translate(translateX, translateY);
-            SizeF size = pdfFile.getPageSize(page);
+            Size size = pdfFile.getPageSize(page);
             listener.onLayerDrawn(canvas,
                     toCurrentScale(size.getWidth()),
                     toCurrentScale(size.getHeight()),
@@ -734,7 +733,7 @@ public class PDFView extends RelativeLayout {
         // Move to the target page
         float localTranslationX = 0;
         float localTranslationY = 0;
-        SizeF size = pdfFile.getPageSize(part.getPage());
+        Size size = pdfFile.getPageSize(part.getPage());
 
         if (swipeVertical) {
             localTranslationY = pdfFile.getPageOffset(part.getPage(), zoom);
@@ -1151,9 +1150,9 @@ public class PDFView extends RelativeLayout {
         jumpTo(page);
     }
 
-    public SizeF getPageSize(int pageIndex) {
+    public Size getPageSize(int pageIndex) {
         if (pdfFile == null) {
-            return new SizeF(0, 0);
+            return new Size(0, 0);
         }
         return pdfFile.getPageSize(pageIndex);
     }

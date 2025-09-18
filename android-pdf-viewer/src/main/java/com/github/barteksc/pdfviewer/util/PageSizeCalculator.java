@@ -18,17 +18,17 @@ package com.github.barteksc.pdfviewer.util;
 import android.app.Activity;
 import android.util.Log;
 import android.content.pm.ActivityInfo;
-import com.shockwave.pdfium.util.Size;
-import com.shockwave.pdfium.util.SizeF;
+
+import io.legere.pdfiumandroid.util.Size;
 
 public class PageSizeCalculator {
 
-    private FitPolicy fitPolicy;
+    private final FitPolicy fitPolicy;
     private final Size originalMaxWidthPageSize;
     private final Size originalMaxHeightPageSize;
     private final Size viewSize;
-    private SizeF optimalMaxWidthPageSize;
-    private SizeF optimalMaxHeightPageSize;
+    private Size optimalMaxWidthPageSize;
+    private Size optimalMaxHeightPageSize;
     private float widthRatio;
     private float heightRatio;
     private boolean fitEachPage;
@@ -43,13 +43,13 @@ public class PageSizeCalculator {
         calculateMaxPages();
     }
 
-    public SizeF calculate(Size pageSize, boolean showTwoPages, boolean isLandscape) {
+    public Size calculate(Size pageSize, boolean showTwoPages, boolean isLandscape) {
         if (pageSize.getWidth() <= 0 || pageSize.getHeight() <= 0) {
-            return new SizeF(0, 0);
+            return new Size(0, 0);
         }
         float maxWidth = 0;
         if(showTwoPages && !isLandscape){
-           maxWidth = fitEachPage ? viewSize.getWidth()  : pageSize.getWidth() / 2 * widthRatio;
+            maxWidth = fitEachPage ? viewSize.getWidth()  : (float) pageSize.getWidth() / 2 * widthRatio;
         } else {
             maxWidth = fitEachPage ? viewSize.getWidth() : pageSize.getWidth() * widthRatio;
         }
@@ -64,11 +64,11 @@ public class PageSizeCalculator {
         }
     }
 
-    public SizeF getOptimalMaxWidthPageSize() {
+    public Size getOptimalMaxWidthPageSize() {
         return optimalMaxWidthPageSize;
     }
 
-    public SizeF getOptimalMaxHeightPageSize() {
+    public Size getOptimalMaxHeightPageSize() {
         return optimalMaxHeightPageSize;
     }
 
@@ -76,43 +76,43 @@ public class PageSizeCalculator {
         switch (fitPolicy) {
             case HEIGHT:
                 optimalMaxHeightPageSize = fitHeight(originalMaxHeightPageSize, viewSize.getHeight());
-                heightRatio = optimalMaxHeightPageSize.getHeight() / originalMaxHeightPageSize.getHeight();
+                heightRatio = (float) optimalMaxHeightPageSize.getHeight() / originalMaxHeightPageSize.getHeight();
                 optimalMaxWidthPageSize = fitHeight(originalMaxWidthPageSize, originalMaxWidthPageSize.getHeight() * heightRatio);
                 break;
             case BOTH:
-                SizeF localOptimalMaxWidth = fitBoth(originalMaxWidthPageSize, viewSize.getWidth(), viewSize.getHeight());
-                float localWidthRatio = localOptimalMaxWidth.getWidth() / originalMaxWidthPageSize.getWidth();
+                Size localOptimalMaxWidth = fitBoth(originalMaxWidthPageSize, viewSize.getWidth(), viewSize.getHeight());
+                float localWidthRatio = (float) localOptimalMaxWidth.getWidth() / originalMaxWidthPageSize.getWidth();
                 this.optimalMaxHeightPageSize = fitBoth(originalMaxHeightPageSize, originalMaxHeightPageSize.getWidth() * localWidthRatio,
                         viewSize.getHeight());
-                heightRatio = optimalMaxHeightPageSize.getHeight() / originalMaxHeightPageSize.getHeight();
+                heightRatio = (float) optimalMaxHeightPageSize.getHeight() / originalMaxHeightPageSize.getHeight();
                 optimalMaxWidthPageSize = fitBoth(originalMaxWidthPageSize, viewSize.getWidth(), originalMaxWidthPageSize.getHeight() * heightRatio);
-                widthRatio = optimalMaxWidthPageSize.getWidth() / originalMaxWidthPageSize.getWidth();
+                widthRatio = (float) optimalMaxWidthPageSize.getWidth() / originalMaxWidthPageSize.getWidth();
                 break;
             default:
                 optimalMaxWidthPageSize = fitWidth(originalMaxWidthPageSize, viewSize.getWidth());
-                widthRatio = optimalMaxWidthPageSize.getWidth() / originalMaxWidthPageSize.getWidth();
+                widthRatio = (float) optimalMaxWidthPageSize.getWidth() / originalMaxWidthPageSize.getWidth();
                 optimalMaxHeightPageSize = fitWidth(originalMaxHeightPageSize, originalMaxHeightPageSize.getWidth() * widthRatio);
                 break;
         }
     }
 
-    private SizeF fitWidth(Size pageSize, float maxWidth) {
+    private Size fitWidth(Size pageSize, float maxWidth) {
         float w = pageSize.getWidth(), h = pageSize.getHeight();
         float ratio = w / h;
         w = maxWidth;
         h = (float) Math.floor(maxWidth / ratio);
-        return new SizeF(w, h);
+        return new Size(Math.round(w), Math.round(h));
     }
 
-    private SizeF fitHeight(Size pageSize, float maxHeight) {
+    private Size fitHeight(Size pageSize, float maxHeight) {
         float w = pageSize.getWidth(), h = pageSize.getHeight();
         float ratio = h / w;
         h = maxHeight;
         w = (float) Math.floor(maxHeight / ratio);
-        return new SizeF(w, h);
+        return new Size(Math.round(w), Math.round(h));
     }
 
-    private SizeF fitBoth(Size pageSize, float maxWidth, float maxHeight) {
+    private Size fitBoth(Size pageSize, float maxWidth, float maxHeight) {
         float w = pageSize.getWidth(), h = pageSize.getHeight();
         float ratio = w / h;
         w = maxWidth;
@@ -121,7 +121,7 @@ public class PageSizeCalculator {
             h = maxHeight;
             w = (float) Math.floor(maxHeight * ratio);
         }
-        return new SizeF(w, h);
+        return new Size(Math.round(w), Math.round(h));
     }
 
 }

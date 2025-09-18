@@ -41,9 +41,8 @@ import com.github.barteksc.pdfviewer.listener.OnPageChangeListener;
 import com.github.barteksc.pdfviewer.listener.OnPageErrorListener;
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
 import com.github.barteksc.pdfviewer.util.FitPolicy;
-import com.shockwave.pdfium.PdfDocument;
-
 import java.util.List;
+import io.legere.pdfiumandroid.PdfDocument;
 
 public class PDFViewActivity extends AppCompatActivity implements OnPageChangeListener, OnLoadCompleteListener,
         OnPageErrorListener {
@@ -218,7 +217,8 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
 
     @Override
     public void loadComplete(int nbPages) {
-        PdfDocument.Meta meta = pdfView.getDocumentMeta();
+
+        io.legere.pdfiumandroid.PdfDocument.Meta meta = pdfView.getDocumentMeta();
         Log.e(TAG, "title = " + meta.getTitle());
         Log.e(TAG, "author = " + meta.getAuthor());
         Log.e(TAG, "subject = " + meta.getSubject());
@@ -237,7 +237,7 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
 
             Log.e(TAG, String.format("%s %s, p %d", sep, b.getTitle(), b.getPageIdx()));
 
-            if (b.hasChildren()) {
+            if (!b.getChildren().isEmpty()) {
                 printBookmarksTree(b.getChildren(), sep + "-");
             }
         }

@@ -16,15 +16,14 @@
 package com.github.barteksc.pdfviewer.source;
 
 import android.content.Context;
-
-import com.shockwave.pdfium.PdfDocument;
-import com.shockwave.pdfium.PdfiumCore;
-
 import java.io.IOException;
+
+import io.legere.pdfiumandroid.PdfDocument;
+import io.legere.pdfiumandroid.PdfiumCore;
 
 public class ByteArraySource implements DocumentSource {
 
-    private byte[] data;
+    private final byte[] data;
 
     public ByteArraySource(byte[] data) {
         this.data = data;
