@@ -77,8 +77,13 @@ class PdfFile {
      */
     private int[] originalUserPages;
 
+    /**
+     * Device screen density. Can get with Context.getResources.getDisplayMetrics().densityDpi
+     */
+    private int densityDpi = 1;
+
     PdfFile(PdfiumCore pdfiumCore, PdfDocument pdfDocument, FitPolicy pageFitPolicy, Size viewSize, int[] originalUserPages,
-            boolean showTwoPages, boolean isVertical, int spacing, boolean autoSpacing, boolean fitEachPage, boolean isLandscape) {
+            boolean showTwoPages, boolean isVertical, int spacing, boolean autoSpacing, boolean fitEachPage, boolean isLandscape, int densityDpi) {
         this.showTwoPages = showTwoPages;
         this.pdfiumCore = pdfiumCore;
         this.pdfDocument = pdfDocument;
@@ -89,6 +94,7 @@ class PdfFile {
         this.autoSpacing = autoSpacing;
         this.fitEachPage = fitEachPage;
         this.isLandscape = isLandscape;
+        this.densityDpi = densityDpi;
         setup(viewSize);
     }
 
@@ -100,7 +106,8 @@ class PdfFile {
         }
 
         for (int i = 0; i < pagesCount; i++) {
-            Size pageSize = pdfiumCore.getPageSize(pdfDocument, documentPage(i));
+            PdfPage pdfPage = pdfDocument.openPage(i);
+            Size pageSize = pdfPage.getPageSize(densityDpi);
             if (pageSize.getWidth() > originalMaxWidthPageSize.getWidth()) {
                 originalMaxWidthPageSize = pageSize;
             }
@@ -279,7 +286,7 @@ class PdfFile {
         synchronized (lock) {
             if (openedPages.indexOfKey(docPage) < 0) {
                 try {
-                    pdfiumCore.openPage(pdfDocument, docPage);
+                    pdfDocument.openPage(docPage);
                     openedPages.put(docPage, true);
                     return true;
                 } catch (Exception e) {
@@ -298,27 +305,39 @@ class PdfFile {
 
     public void renderPageBitmap(Bitmap bitmap, int pageIndex, Rect bounds, boolean annotationRendering) {
         int docPage = documentPage(pageIndex);
-        pdfiumCore.renderPageBitmap(pdfDocument, bitmap, docPage,
-                bounds.left, bounds.top, bounds.width(), bounds.height(), annotationRendering);
+        PdfPage pdfPage = pdfDocument.openPage(docPage);
+        pdfPage.renderPageBitmap(
+                bitmap,
+                bounds.left,
+                bounds.top,
+                bounds.width(),
+                bounds.height(),
+                annotationRendering,
+                false,
+                0xFF848484,
+                0xFFFFFFFF
+        );
     }
 
     public PdfDocument.Meta getMetaData() {
         if (pdfDocument == null) {
             return null;
         }
-        return pdfiumCore.getDocumentMeta(pdfDocument);
+
+        return pdfDocument.getDocumentMeta();
     }
 
     public List<PdfDocument.Bookmark> getBookmarks() {
         if (pdfDocument == null) {
             return new ArrayList<>();
         }
-        return pdfiumCore.getTableOfContents(pdfDocument);
+        return pdfDocument.getTableOfContents();
     }
 
     public List<PdfDocument.Link> getPageLinks(int pageIndex) {
         int docPage = documentPage(pageIndex);
-        return pdfiumCore.getPageLinks(pdfDocument, docPage);
+        PdfPage pdfPage = pdfDocument.openPage(docPage);
+        return pdfPage.getPageLinks();
     }
 
     public Rect mapRectToDevice(int pageIndex, int startX, int startY, int sizeX, int sizeY,
@@ -330,7 +349,7 @@ class PdfFile {
 
     public void dispose() {
         if (pdfiumCore != null && pdfDocument != null) {
-            pdfiumCore.closeDocument(pdfDocument);
+            pdfDocument.close();
         }
 
         pdfDocument = null;

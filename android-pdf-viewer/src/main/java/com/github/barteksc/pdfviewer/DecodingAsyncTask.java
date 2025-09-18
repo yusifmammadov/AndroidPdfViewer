@@ -63,7 +63,8 @@ class DecodingAsyncTask extends AsyncTask<Void, Void, Throwable> {
                         pdfView.getSpacingPx(),
                         pdfView.isAutoSpacingEnabled(),
                         pdfView.isFitEachPage(),
-                        pdfView.isOnLandscapeOrientation()
+                        pdfView.isOnLandscapeOrientation(),
+                        pdfView.getContext().getResources().getDisplayMetrics().densityDpi
                 );
                 return null;
             } else {
